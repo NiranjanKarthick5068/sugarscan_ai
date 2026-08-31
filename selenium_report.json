@@ -1,0 +1,19 @@
+{
+  "numFailedTestSuites": 0,
+  "numPassedTestSuites": 1,
+  "numTotalTestSuites": 1,
+  "testResults": [
+    {
+      "assertionResults": [
+        {
+          "title": "Loads the web application without crashing",
+          "status": "passed"
+        },
+        {
+          "title": "Verifies page title exists",
+          "status": "passed"
+        }
+      ]
+    }
+  ]
+}

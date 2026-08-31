@@ -1,0 +1,30 @@
+# Node modules
+node_modules/
+.expo/
+npm-debug.log
+yarn-error.log
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+.venv/
+venv/
+env/
+
+# Environments
+.env
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+
+# Models and Media
+backend/models/
+backend/media/
+backend/chroma_db/
+backend/sqlite.db
+
+# OS Files
+.DS_Store
+Thumbs.db

@@ -1,0 +1,52 @@
+{
+  "expo": {
+    "name": "SugarScan AI",
+    "slug": "sugarscan-ai",
+    "version": "2.0.0",
+    "orientation": "portrait",
+    "icon": "./assets/icon.png",
+    "userInterfaceStyle": "dark",
+    "scheme": "sugarscan",
+    "splash": {
+      "backgroundColor": "#DFFB84",
+      "resizeMode": "contain"
+    },
+    "ios": {
+      "bundleIdentifier": "com.sugarscan.ai",
+      "supportsTablet": false,
+      "infoPlist": {
+        "NSCameraUsageDescription": "SugarScan AI uses the camera to scan food items and analyze their nutritional content.",
+        "NSPhotoLibraryUsageDescription": "SugarScan AI accesses your photos to scan food items for nutritional analysis.",
+        "NSPhotoLibraryAddUsageDescription": "SugarScan AI saves scan results to your photo library."
+      }
+    },
+    "android": {
+      "package": "com.sugarscan.ai",
+      "adaptiveIcon": {
+        "backgroundColor": "#DFFB84"
+      },
+      "permissions": [
+        "CAMERA",
+        "READ_EXTERNAL_STORAGE",
+        "WRITE_EXTERNAL_STORAGE"
+      ]
+    },
+    "plugins": [
+      "expo-camera",
+      "expo-image-picker",
+      "expo-secure-store",
+      [
+        "expo-router",
+        {
+          "root": "./app"
+        }
+      ]
+    ],
+    "experiments": {
+      "typedRoutes": true
+    },
+    "extra": {
+      "apiUrl": "http://192.168.168.194:8000"
+    }
+  }
+}

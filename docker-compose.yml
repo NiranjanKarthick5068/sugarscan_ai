@@ -1,0 +1,88 @@
+version: "3.9"
+
+# ─── SugarScan AI — Backend Services ──────────────────────────────────────────
+# After the Supabase migration, this compose file runs:
+#   • FastAPI (AI inference: moondream vision + phi3-mini chat)
+#   • Ollama (local LLM runtime)
+#
+# User/scan data now lives in Supabase, so Postgres/Redis are removed.
+# ──────────────────────────────────────────────────────────────────────────────
+
+services:
+  # ── Ollama: local LLM runtime ────────────────────────────────────────────
+  ollama:
+    image: ollama/ollama:latest
+    container_name: sugarscan_ollama
+    volumes:
+      - ollama_data:/root/.ollama
+    ports:
+      - "11434:11434"
+    restart: unless-stopped
+    # GPU support — comment out if running CPU-only
+    # deploy:
+    #   resources:
+    #     reservations:
+    #       devices:
+    #         - driver: nvidia
+    #           count: 1
+    #           capabilities: [gpu]
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:11434/api/tags"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 60s
+
+  # ── Model puller: downloads models once on first start ──────────────────
+  ollama-pull:
+    image: ollama/ollama:latest
+    container_name: sugarscan_ollama_pull
+    depends_on:
+      ollama:
+        condition: service_healthy
+    environment:
+      - OLLAMA_HOST=http://ollama:11434
+    entrypoint: ["/bin/sh", "-c"]
+    command: >
+      "ollama pull moondream && ollama pull phi3:mini && echo 'Models ready.'"
+    restart: "no"
+
+  # ── FastAPI: vision analysis + AI chat ──────────────────────────────────
+  api:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: sugarscan_api
+    depends_on:
+      ollama:
+        condition: service_healthy
+    env_file:
+      - ./backend/.env
+    environment:
+      # AI
+      - OLLAMA_BASE_URL=http://ollama:11434
+      - VISION_MODEL=moondream
+      - CHAT_MODEL=phi3:mini
+      # Supabase (loaded from backend/.env)
+      # Server
+      - HOST=0.0.0.0
+      - PORT=8000
+      - ENVIRONMENT=production
+    ports:
+      - "8000:8000"
+    volumes:
+      # Persistent temp dir for images during processing (deleted after upload to Supabase)
+      - api_tmp:/app/tmp
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:8000/health')"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 30s
+
+volumes:
+  ollama_data:
+    driver: local
+  api_tmp:
+    driver: local
